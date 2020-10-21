@@ -1,12 +1,12 @@
-{% set version =  "0.11.3" %}
+{% set version =  "0.12.3" %}
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: windows-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
+  name: windows2k12r2-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
   annotations:
-    openshift.io/display-name: "Microsoft Windows Server 2012 R2+ VM"
+    openshift.io/display-name: "Microsoft Windows Server 2012 R2 VM"
     description: >-
-      Template for Microsoft Windows Server 2012 R2 VM or newer.
+      Template for Microsoft Windows Server 2012 R2 VM.
       A PVC with the Windows disk image must be available.
     tags: "hidden,kubevirt,virtualmachine,windows"
     iconClass: "icon-windows"
@@ -24,9 +24,6 @@ metadata:
       /objects[0].spec.template.spec.domain.devices.disks
       /objects[0].spec.template.spec.volumes
       /objects[0].spec.template.spec.networks
-
-    name.os.template.kubevirt.io/win2k19: {{ lookup('osinfo', 'win2k19').name }}
-    name.os.template.kubevirt.io/win2k16: {{ lookup('osinfo', 'win2k16').name }}
     name.os.template.kubevirt.io/win2k12r2: {{ lookup('osinfo', 'win2k12r2').name }}
 
     validations: |
@@ -40,7 +37,7 @@ metadata:
         }, {
           "name": "windows-virtio-bus",
           "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
-          "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "valid": "jsonpath::.spec.domain.devices.disks[*]",
           "rule": "enum",
           "message": "virto disk bus type has better performance, install virtio drivers in VM and change bus type",
           "values": ["virtio"],
@@ -48,7 +45,7 @@ metadata:
         }, {
           "name": "windows-disk-bus",
           "path": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
-          "valid": "jsonpath::.spec.domain.devices.disks[*].disk.bus",
+          "valid": "jsonpath::.spec.domain.devices.disks[*]",
           "rule": "enum",
           "message": "disk bus has to be either virtio or sata",
           "values": ["virtio", "sata"]
@@ -61,10 +58,7 @@ metadata:
           "values": ["sata"]
         }
       ]
-
   labels:
-    os.template.kubevirt.io/win2k19: "true"
-    os.template.kubevirt.io/win2k16: "true"
     os.template.kubevirt.io/win2k12r2: "true"
     workload.template.kubevirt.io/{{ item.workload }}: "true"
     flavor.template.kubevirt.io/{{ item.flavor }}: "true"
@@ -77,7 +71,7 @@ objects:
   metadata:
     name: ${NAME}
     labels:
-      vm.kubevirt.io/template: windows-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
+      vm.kubevirt.io/template: windows2k12r2-{{ item.workload }}-{{ item.flavor }}-v{{ version }}
       vm.kubevirt.io/template.version: "{{ lookup('env', 'VERSION') | default('devel', true) }}"
       vm.kubevirt.io/template.revision: "{{ lookup('env', 'REVISION') | default(1, true) }}"
       app: ${NAME}
@@ -149,7 +143,7 @@ parameters:
   required: true
 - name: SRC_PVC_NAME
   description: Name of the PVC to clone
-  value: win2k19
+  value: win2k12r2
 - name: SRC_PVC_NAMESPACE
   description: Namespace of the source PVC
   value: kubevirt-os-images

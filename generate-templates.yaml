@@ -1,256 +1,277 @@
 ---
-- connection: local
-  hosts: 127.0.0.1
-  gather_facts: no
-  tasks:
-  - name: Prepare dist directory
-    file:
-      path: "{{ playbook_dir }}/dist/templates"
-      state: directory
-
-  - name: Load RHEL 8 versions
-    set_fact:
-      rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
-
-  - name: Generate RHEL 8 templates
-    template:
-      src: rhel8.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: tiny, workload: highperformance, memsize: "1.5Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
-    vars:
-      os: rhel8
-      icon: rhel
-      majorrelease: rhel8
-      oslabels: "{{ rhel8_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: cloud-user
-
-  - name: Load RHEL 7 versions
-    set_fact:
-      rhel7_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel7\\.') |list |sort }}"
-
-  - name: Generate RHEL 7 templates
-    template:
-      src: rhel7.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: tiny, workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
-    vars:
-      os: rhel7
-      icon: rhel
-      majorrelease: rhel7
-      oslabels: "{{ rhel7_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: cloud-user
-
-  - name: Load RHEL 6 versions
-    set_fact:
-      rhel6_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel6\\.') |list |sort }}"
-
-  - name: Generate RHEL 6 templates
-    template:
-      src: rhel6.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}    
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    vars:
-      os: rhel6
-      icon: rhel
-      majorrelease: rhel6
-      oslabels: "{{ rhel6_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: cloud-user
-
-  - name: Generate CentOS 8 templates
-    template:
-      src: centos8.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    vars:
-      os: centos8
-      icon: centos
-      majorrelease: centos8
-      oslabels:
-       - centos8
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: centos
-
-  - name: Generate CentOS 7 templates
-    template:
-      src: centos7.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    vars:
-      os: centos7
-      icon: centos
-      majorrelease: centos7
-      oslabels:
-       - centos7.0
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: centos
-
-  - name: Load CentOS 6 versions
-    set_fact:
-      centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6\\.') |list |sort }}"
-
-  - name: Generate CentOS 6 templates
-    template:
-      src: centos6.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    vars:
-      os: centos6
-      icon: centos
-      majorrelease: centos6
-      oslabels: "{{ centos6_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: centos
-
-  - name: Load Fedora versions
-    set_fact:
-      fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
-
-  - name: Generate Fedora templates
-    template:
-      src: fedora.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: tiny, workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
-    vars:
-      os: fedora
-      icon: fedora
-      majorrelease: fedora32
-      oslabels: "{{ fedora_labels }}"
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: fedora
-
-  - name: Generate OpenSUSE templates
-    template:
-      src: opensuse.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    vars:
-      os: opensuse
-      icon: opensuse
-      majorrelease: opensuse15
-      oslabels:
-       - opensuse15.0
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: opensuse
-
-  - name: Generate Ubuntu templates
-    template:
-      src: ubuntu.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-      #minimal memory requirement for ubuntu is 2Gi, for now we don't have mechanism how to deprecate template 
-    - {flavor: tiny, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    vars:
-      os: ubuntu
-      icon: ubuntu
-      majorrelease: ubuntu18
-      oslabels:
-       - ubuntu18.04
-      osinfoname: "{{ oslabels[0] }}"
-      cloudusername: ubuntu
-
-  - name: Generate Windows server templates
-    template:
-      src: windows.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    vars:
-      osinfoname: win2k12r2
-
-  - name: Generate Windows 10 templates
-    template:
-      src: windows10.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/windows10-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    vars:
-      osinfoname: win10
-
-  - name: Generate deprecated Windows templates
-    template:
-      src: win2k12r2-deprecated.tpl.yaml
-      dest: "{{ playbook_dir }}/dist/templates/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
-    with_items:
-    - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
-    - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
-    - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
-    - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
-    vars:
-      osinfoname: win2k12r2
-
+  - connection: local
+    hosts: 127.0.0.1
+    gather_facts: no
+    tasks:
+    - name: Prepare dist directory
+      file:
+        path: "{{ playbook_dir }}/dist/templates"
+        state: directory
+  
+    - name: Load RHEL 8 versions
+      set_fact:
+        rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
+  
+    - name: Generate RHEL 8 templates
+      template:
+        src: rhel8.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: tiny, workload: highperformance, memsize: "1.5Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
+      vars:
+        os: rhel8
+        icon: rhel
+        password: redhat
+        oslabels: "{{ rhel8_labels }}"
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Load RHEL 7 versions
+      set_fact:
+        rhel7_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel7\\.') |list |sort }}"
+  
+    - name: Generate RHEL 7 templates
+      template:
+        src: rhel7.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: tiny, workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
+      vars:
+        os: rhel7
+        icon: rhel
+        password: redhat
+        oslabels: "{{ rhel7_labels }}"
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Load RHEL 6 versions
+      set_fact:
+        rhel6_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel6\\.') |list |sort }}"
+  
+    - name: Generate RHEL 6 templates
+      template:
+        src: rhel6.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}    
+      - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        os: rhel6
+        icon: rhel
+        password: redhat
+        oslabels: "{{ rhel6_labels }}"
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Generate CentOS 8 templates
+      template:
+        src: centos8.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: tiny, workload: server, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: tiny, workload: desktop, memsize: "1.5Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        os: centos8
+        icon: centos
+        password: centos
+        oslabels:
+         - centos8
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Generate CentOS 7 templates
+      template:
+        src: centos7.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        os: centos7
+        icon: centos
+        password: centos
+        oslabels:
+         - centos7.0
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Load CentOS 6 versions
+      set_fact:
+        centos6_labels: "{{ lookup('osinfo', 'distro=centos') |map(attribute='short_id') |select('match', '^centos6\\.') |list |sort }}"
+  
+    - name: Generate CentOS 6 templates
+      template:
+        src: centos6.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      vars:
+        os: centos6
+        icon: centos
+        password: centos
+        oslabels: "{{ centos6_labels }}"
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Load Fedora versions
+      set_fact:
+        fedora_labels: "{{ lookup('osinfo', 'distro=fedora') |select('osinfo_active') |map(attribute='short_id') |list |sort }}"
+  
+    - name: Generate Fedora templates
+      template:
+        src: fedora.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: tiny, workload: desktop, memsize: "1Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: tiny, workload: highperformance, memsize: "1Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: small, workload: highperformance, memsize: "2Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: highperformance, memsize: "4Gi", cpus: 1, iothreads: True, tablet: False}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      - {flavor: large, workload: highperformance, memsize: "8Gi", cpus: 2, iothreads: True, tablet: False}
+      vars:
+        os: fedora
+        icon: fedora
+        password: fedora
+        oslabels: "{{ fedora_labels }}"
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Generate OpenSUSE templates
+      template:
+        src: opensuse.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: tiny, workload: server, memsize: "1Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: small, workload: server, memsize: "2Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      vars:
+        os: opensuse
+        icon: opensuse
+        password: opensuse
+        oslabels:
+         - opensuse15.0
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Generate Ubuntu templates
+      template:
+        src: ubuntu.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/{{ os }}-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+        #minimal memory requirement for ubuntu is 2Gi, for now we don't have mechanism how to deprecate template 
+      - {flavor: tiny, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: small, workload: desktop, memsize: "2Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        os: ubuntu
+        icon: ubuntu
+        password: ubuntu
+        oslabels:
+         - ubuntu18.04
+        osinfoname: "{{ oslabels[0] }}"
+  
+    - name: Generate deprecated Windows server templates
+      template:
+        src: deprecated-windows.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/windows-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        osinfoname: win2k12r2
+  
+    - name: Generate Windows server 2012 R2 templates
+      template:
+        src: windows2k12.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/windows2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        osinfoname: win2k12r2
+  
+    - name: Generate Windows server 2016 templates
+      template:
+        src: windows2k16.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/windows2k16-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        osinfoname: win2k16
+  
+    - name: Generate Windows server 2019 templates
+      template:
+        src: windows2k19.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/windows2k19-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        osinfoname: win2k19
+  
+    - name: Generate Windows 10 templates
+      template:
+        src: windows10.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/windows10-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        osinfoname: win10
+  
+    - name: Generate deprecated Windows templates
+      template:
+        src: win2k12r2-deprecated.tpl.yaml
+        dest: "{{ playbook_dir }}/dist/templates/win2k12r2-{{ item.workload }}-{{ item.flavor }}.yaml"
+      with_items:
+      - {flavor: medium, workload: server, memsize: "4Gi", cpus: 1, iothreads: False, tablet: False}
+      - {flavor: medium, workload: desktop, memsize: "4Gi", cpus: 1, iothreads: False, tablet: True}
+      - {flavor: large, workload: server, memsize: "8Gi", cpus: 2, iothreads: False, tablet: False}
+      - {flavor: large, workload: desktop, memsize: "8Gi", cpus: 2, iothreads: False, tablet: True}
+      vars:
+        osinfoname: win2k12r2
+  

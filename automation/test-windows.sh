@@ -6,7 +6,7 @@ _oc() {
   cluster-up/kubectl.sh "$@"
 }
 
-template_name="windows"
+template_name="windows2k12r2"
 # Prepare PV and PVC for Windows testing
 
 _oc create -f - <<EOF
@@ -40,7 +40,6 @@ spec:
   resources:
     requests:
       storage: 50Gi
-
   selector:
     matchLabels:
       kubevirt.io/os: "windows"
@@ -92,6 +91,10 @@ workloads=("server")
 if [[ $TARGET =~ windows10.* ]]; then
   template_name="windows10"
   workloads=("desktop")
+elif [[ $TARGET =~ windows2016.* ]]; then
+  template_name="windows2k16"
+elif [[ $TARGET =~ windows2019.* ]]; then
+  template_name="windows2k19"
 fi
 
 delete_vm(){
