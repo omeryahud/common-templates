@@ -1,0 +1,24 @@
+name: Test csv-generator
+
+on:
+  pull_request: {}
+
+jobs:
+  build:
+    runs-on: unbuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Generate Bundle
+        run: |
+          sudo apt-get install jq \
+            ansible \
+            libosinfo-bin \
+            python3 \
+            python-gobject \
+            osinfo-db-tools \
+            intltool
+          git submodule init
+          git submodule update
+          export REVISION=1
+          make release
