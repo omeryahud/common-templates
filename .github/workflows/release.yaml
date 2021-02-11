@@ -1,0 +1,67 @@
+on:
+  release:
+    types: [published]
+
+name: Publish Bundle
+
+jobs:
+  build:
+    name: Publish Bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Get Release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+
+      - name: Generate Bundle
+        run: |
+          git submodule init
+          git submodule update
+          docker build -t common-templates-ci ./builder/
+          docker run \
+            -v "$(pwd)":/common-templates \
+            common-templates-ci \
+            /bin/bash -c "cd /common-templates && export REVISION=1 && make release"
+
+      - name: Upload Release Asset
+        id: upload-bundle-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./dist/common-templates.yaml
+          asset_name: common-templates.yaml
+          asset_content_type: text/plain
+
+      - name: Update SSP Operator
+        run: |
+          export VERSION="${{ steps.get_release.outputs.tag_name }}"
+          export TEMPLATES_FILE=common-templates-${VERSION#v}.yaml
+          git config --global user.email "oyahud@redhat.com"
+          git config --global user.name "Omer Yahud"
+          git clone https://omeryahud:${{ secrets.ACTIONS_TOKEN }}@github.com/omeryahud/ssp-operator
+          echo ${{ secrets.ACTIONS_TOKEN }} > token.txt
+          gh auth login --with-token < token.txt
+          rm token.txt
+          cd ssp-operator
+          git remote add upstream https://github.com/kubevirt/ssp-operator
+          git fetch upstream
+          git rebase upstream/master
+          git checkout -b update-common-templates-$VERSION
+          cp ../dist/$TEMPLATES_FILE data/common-templates-bundle/$TEMPLATES_FILE
+          cp ../dist/$TEMPLATES_FILE internal/operands/common-templates/data/common-templates-bundle/$TEMPLATES_FILE
+          sed -i 's/Version.*/Version = "$VERSION"/g' internal/operands/common-templates/resource.go
+          git add data internal
+          git commit -sm "Update common-templates bundle to version $VERSION"
+          git push --set-upstream origin update-common-templates-$VERSION
+          gh pr create --repo omeryahud/ssp-operator \
+            --base master \
+            --head update-common-templates-$VERSION \
+            --body 'Update common-templates bundle' \
+            --title 'Update common-templates'
