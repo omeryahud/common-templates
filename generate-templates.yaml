@@ -8,6 +8,9 @@
       path: "{{ playbook_dir }}/dist/templates"
       state: directory
 
+  - debug:
+      msg: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') }}"
+
   - name: Load RHEL 8 versions
     set_fact:
       rhel8_labels: "{{ lookup('osinfo', 'distro=rhel') |map(attribute='short_id') |select('match', '^rhel8\\.') |list |sort }}"
