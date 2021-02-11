@@ -1,0 +1,61 @@
+on:
+  release:
+    types: [published]
+
+name: Publish Bundle
+
+jobs:
+  build:
+    name: Publish Bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Get Release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+
+      - name: Generate Bundle
+        run: |
+          sudo apt-get install jq \
+            ansible \
+            libosinfo-bin \
+            python-gobject \
+            osinfo-db-tools \
+            intltool
+          git submodule init
+          git submodule update
+          export REVISION=1
+          make release
+
+      - name: Upload Release Asset
+        id: upload-bundle-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./dist/common-templates-${{ steps.get_release.outputs.tag_name }}.yaml
+          asset_name: common-templates-${{ steps.get_release.outputs.tag_name }}.yaml
+          asset_content_type: text/plain
+
+      - name: Update SSP Operator
+        run: |
+          export VERSION="${{ steps.get_release.outputs.tag_name }}"
+          export TEMPLATES_FILE=common-templates-$VERSION.yaml
+          git clone https://github.com/omeryahud/ssp-operator
+          cd ssp-operator
+          git checkout -b update-common-templates-$VERSION
+          cp ../dist/$TEMPLATES_FILE data/common-templates-bundle/$TEMPLATES_FILE 
+          cp ../dist/$TEMPLATES_FILE internal/operands/common-templates/data/common-templates-bundle/$TEMPLATES_FILE 
+          git add data internal
+          git commit -sm "Update common-templates bundle to version $VERSION"
+          git push -f --set-upstream origin update-common-templates-$VERSION
+          echo ${{ secrets.ACTIONS_TOKEN }} > token.txt
+          gh auth login < token.txt
+          rm token.txt
+          gh pr create --repo omeryahud/ssp-operator --base master --head update-common-templates-$VERSION --body 'Update common-templates bundle' --title 'Update common-templates'
+          gh auth logout
