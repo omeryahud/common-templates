@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/kubevirt/common-templates.svg?branch=master)](https://travis-ci.com/kubevirt/common-templates)
 
 A set of (meta-)Templates to create KubeVirt VMs.
-
+s
 # Overview
 
 This repository provides VM templates in the form compatible with [OpenShift templates](https://docs.okd.io/latest/openshift_images/using-templates.html) and OpenShift Cluster Console Web UI and those can further be transformed into regular objects for use with plain Kubernetes.
